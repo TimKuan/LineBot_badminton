@@ -1,6 +1,8 @@
 import constant
 from datetime import datetime
 from bs4 import Tag
+
+# 分析使用者傳入的文字訊息，並返回一個用於進一步處理的資料結構
 def analyze_text(text:str):
     use_dic = {}
     datalst = [None,None,None,None,None] # 0縣市 , 1區域 , 2星期 , 3時間 , 4程度
@@ -42,7 +44,7 @@ def analyze_text(text:str):
     if datalst[4]:
         use_dic['level[]'] = datalst[4]    
     return use_dic            
-
+# 將符合需求的元素資料取出
 def analyze_reslut(element:Tag):
     # 0球隊名稱 , 1縣市區域 , 2打球時間 , 3地點 , 4.聯絡人 5.程度 6. 下一次打球時日期 7.費用 ８. 聯絡資訊
     datalst = [None,None,None,None,None,None,None,None,None]
@@ -119,7 +121,7 @@ def analyze_reslut(element:Tag):
         pass   
     
     return datalst
-    
+# 將結果 組成 使用者要看的內容    
 def analyze_return(resutlst:list):
     # 0球隊名稱 , 1縣市區域 , 2打球時間 , 3地點 , 4.聯絡人 5.程度 6. 下一次打球時日期 7.費用 ８. 聯絡資訊
     title = ['球隊名稱','縣市區域','打球時間','地點','聯絡人','程度','下一次打球時日期','費用','聯絡資訊']
@@ -128,7 +130,7 @@ def analyze_return(resutlst:list):
         if resutlst[index]!=None:
             content += f'{title[index]}:{resutlst[index]}\n'
     return content        
-
+#篩選符合需求的結果
 def row_filter(element:Tag):
     # 找到下一次打球日期
     next_date_str = element.find('td', class_='next_play_date').text

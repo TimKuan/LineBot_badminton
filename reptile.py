@@ -16,6 +16,7 @@ def reptile(params:dict):
       for row in elements:
           # 找到每個 <tr> 元素，並判斷是否符合需求
           if util.row_filter(row):
+              # # 將符合需求的元素資料取出，並放入串列
               result.append(util.analyze_reslut(row))
 
       if len(result)>0:
