@@ -49,30 +49,33 @@ def handle_message(event):
 
     # 分析使用者傳入的文字訊息，並返回一個用於進一步處理的資料結構
     user_needs = util.analyze_text(event.message.text)
-    # 開始進行爬蟲處理
-    result = reptile.reptile(user_needs)
-
-    #準備要發送的消息列表
-    message = []
-    for content in result:
-        # 將結果 組成 使用者要看的內容
-        analyzed_content = util.analyze_return(content)
-        message.append(TextMessage(text=analyzed_content))    
-    batch = message[0:5]
-    try:
-        with ApiClient(configuration) as api_client:
-            line_bot_api = MessagingApi(api_client)
-            line_bot_api.reply_message_with_http_info(
-                ReplyMessageRequest(
-                    reply_token=event.reply_token,
-                    messages=batch
+    # 如果無法分析使用者需求
+    if all(element is None for element in user_needs):
+        message = [TextMessage(text=constant.user_manual)]
+    else:
+        # 開始進行爬蟲處理
+        result = reptile.reptile(user_needs)
+        if type(result) == list:   
+            batch = []
+            for content in result:
+                analyzed_content = util.analyze_return(content)
+                batch.append(TextMessage(text=analyzed_content))
+            message = batch[0:5]    
+        else:
+            message = [TextMessage(text=result)]
+    if message:
+        try:
+            with ApiClient(configuration) as api_client:
+                line_bot_api = MessagingApi(api_client)
+                line_bot_api.reply_message_with_http_info(
+                    ReplyMessageRequest(
+                        reply_token=event.reply_token,
+                        messages=message
+                    )
                 )
-            )
-    except Exception as e:
-        print(f"Failed to send messages: {e}")
+        except Exception as e:
+            print(f"Failed to send messages: {e}")
         
 
-
-import os
 if __name__ == "__main__":
     app.run(port=constant.linebot_port)
